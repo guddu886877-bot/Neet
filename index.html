@@ -1,0 +1,1351 @@
+```html
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Mission Tracker - Doctor Ban Ke Rahenge</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        },
+                        aiims: {
+                            blue: '#1e3a8a',
+                            cyan: '#06b6d4',
+                            dark: '#0f172a',
+                            card: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #059669;
+            border-radius: 4px;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-200">
+
+    <!-- Top Sticky Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-user-doctor text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                        NEET Target Tracker 🩺
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">Mission AIIMS / Top Medical College</p>
+                </div>
+            </div>
+
+            <!-- Quick Action controls -->
+            <div class="flex items-center space-x-3">
+                <button onclick="openTimerModal()" class="flex items-center space-x-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-sm font-semibold transition">
+                    <i class="fa-solid fa-stopwatch animate-pulse"></i>
+                    <span id="navTimerDisplay">25:00</span>
+                </button>
+                <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Toggle Theme">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <!-- Banner Grid: Motivational Shayari & Countdown Timer -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Countdown Timer Card (1 Col) -->
+            <div class="glass-card rounded-2xl p-5 shadow-xl border border-emerald-500/20 relative overflow-hidden flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs font-bold tracking-wider uppercase text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-regular fa-clock"></i> NEET Exam Countdown
+                    </span>
+                    <button onclick="changeExamDatePrompt()" class="text-xs text-slate-400 hover:text-emerald-400 underline" title="Change target date">
+                        Date Badlo
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-2 text-center my-2">
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                        <span id="cdDays" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 block font-mono">00</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-semibold">Days</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                        <span id="cdHours" class="text-2xl sm:text-3xl font-extrabold text-cyan-400 block font-mono">00</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-semibold">Hours</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                        <span id="cdMins" class="text-2xl sm:text-3xl font-extrabold text-teal-400 block font-mono">00</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-semibold">Mins</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                        <span id="cdSecs" class="text-2xl sm:text-3xl font-extrabold text-amber-400 block font-mono">00</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-semibold">Secs</span>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-xs text-slate-400 flex justify-between items-center bg-slate-900/40 px-3 py-2 rounded-xl">
+                    <span>Target Date: <strong id="displayExamDate" class="text-slate-200">03 May 2026</strong></span>
+                    <span class="text-emerald-400 font-medium"><i class="fa-solid fa-heart-pulse"></i> Har pal kimti hai!</span>
+                </div>
+            </div>
+
+            <!-- Motivational Shayari Banner (2 Cols) -->
+            <div class="lg:col-span-2 glass-card rounded-2xl p-5 shadow-xl border border-teal-500/20 relative flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold tracking-wider uppercase text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-amber-500"></i> Daily NEET Josh & Shayari
+                    </span>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyShayari()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition" title="Copy Shayari">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                        <button onclick="nextShayari()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg shadow-sm font-semibold flex items-center gap-1 transition">
+                            <i class="fa-solid fa-arrows-rotate"></i> Agli Shayari
+                        </button>
+                    </div>
+                </div>
+
+                <div class="my-auto py-2">
+                    <p id="shayariText" class="text-base sm:text-lg font-medium leading-relaxed text-slate-200 italic">
+                        "ना पूछो कि मेरी मंजिल कहाँ है, अभी तो सफर का इरादा किया है, ना हारूंगा हौसला उम्र भर, ये मैंने किसी से नहीं खुद से वादा किया है।"
+                    </p>
+                    <p id="shayariAuthor" class="text-xs text-emerald-400 font-semibold mt-2 text-right">~ Future Doctor Motivation</p>
+                </div>
+
+                <div class="flex items-center justify-between text-xs text-slate-400 border-t border-slate-800/80 pt-2">
+                    <span>💡 Har 12 second me nayi shayari aati hai</span>
+                    <span id="shayariIndex" class="font-mono text-emerald-400">1 / 30</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Progress Overview & Subject Bars -->
+        <div class="glass-card rounded-2xl p-6 shadow-xl border border-slate-800">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                        Syllabus Progress Tracker
+                    </h2>
+                    <p class="text-xs text-slate-400">Theory, PYQs aur Revisions ke aadhar par progress</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block font-medium">Overall Complete</span>
+                        <span id="overallPercentage" class="text-2xl font-black text-emerald-400 font-mono">0%</span>
+                    </div>
+                    <div class="w-16 h-16 relative flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-slate-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path id="overallCircle" class="text-emerald-500 transition-all duration-700" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <i class="fa-solid fa-stethoscope absolute text-emerald-400 text-sm"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Physics -->
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-blue-500/20">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-sm font-bold text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-atom"></i> Physics
+                        </span>
+                        <span id="physicsPercent" class="text-sm font-extrabold text-blue-400 font-mono">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div id="physicsBar" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400 mt-2">
+                        <span id="physicsCount">0/0 Ch Completed</span>
+                        <span id="physicsPyqCount">0 PYQs done</span>
+                    </div>
+                </div>
+
+                <!-- Chemistry -->
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-amber-500/20">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-flask-vial"></i> Chemistry
+                        </span>
+                        <span id="chemistryPercent" class="text-sm font-extrabold text-amber-400 font-mono">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div id="chemistryBar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400 mt-2">
+                        <span id="chemistryCount">0/0 Ch Completed</span>
+                        <span id="chemistryPyqCount">0 PYQs done</span>
+                    </div>
+                </div>
+
+                <!-- Biology -->
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-emerald-500/20">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-dna"></i> Biology (360/360)
+                        </span>
+                        <span id="biologyPercent" class="text-sm font-extrabold text-emerald-400 font-mono">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div id="biologyBar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400 mt-2">
+                        <span id="biologyCount">0/0 Ch Completed</span>
+                        <span id="biologyPyqCount">0 PYQs done</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Planner & Quick Formula Diary -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Daily Study Planner / To-Do -->
+            <div class="glass-card rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-emerald-400"></i> Daily Study Targets & Plan
+                        </h3>
+                        <span id="taskStats" class="text-xs bg-slate-800 text-emerald-400 px-2.5 py-1 rounded-full font-semibold">0 Done</span>
+                    </div>
+
+                    <!-- Input form for tasks -->
+                    <form id="todoForm" onsubmit="addTodoTask(event)" class="flex gap-2 mb-3">
+                        <input type="text" id="taskInput" placeholder="e.g. Optics ke 50 PYQs lagane hain..." required
+                            class="flex-1 bg-slate-900 border border-slate-700 text-sm text-slate-100 px-3.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500">
+                        <select id="taskPriority" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 px-2 rounded-xl focus:outline-none focus:border-emerald-500">
+                            <option value="high">High 🔥</option>
+                            <option value="med" selected>Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
+                            <i class="fa-solid fa-plus"></i> Add
+                        </button>
+                    </form>
+
+                    <!-- Tasks List -->
+                    <div id="todoList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-slate-400 mt-3 pt-3 border-t border-slate-800">
+                    <span>Roz sone se pehle sab targets tick karein!</span>
+                    <button onclick="clearCompletedTodos()" class="text-red-400 hover:underline">Clear Done</button>
+                </div>
+            </div>
+
+            <!-- Important Notes & Formula Diary -->
+            <div class="glass-card rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark text-cyan-400"></i> Quick High-Yield Notes & Formulas
+                        </h3>
+                        <button onclick="openNoteModal()" class="text-xs bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 px-3 py-1 rounded-lg font-medium transition">
+                            <i class="fa-solid fa-pen-nib mr-1"></i> Naya Note Likhein
+                        </button>
+                    </div>
+
+                    <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="text-xs text-slate-400 mt-3 pt-3 border-t border-slate-800 flex justify-between items-center">
+                    <span>Revision time par formula & key points turant recall karein.</span>
+                    <span id="notesCount" class="font-mono text-cyan-400">0 Notes</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MAIN CHAPTER TRACKER SECTION -->
+        <div class="glass-card rounded-2xl p-6 shadow-xl border border-slate-800">
+            <!-- Header & Filter Row -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-emerald-400"></i>
+                        Class 11th & 12th Master Chapter Tracker
+                    </h2>
+                    <p class="text-xs text-slate-400">Theory, PYQs count, multiple revisions & mock test notes track karein</p>
+                </div>
+
+                <!-- Add Custom Chapter button & search -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                        <input type="text" id="chapterSearch" oninput="renderChapters()" placeholder="Chapter search karein..." 
+                            class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-100 pl-8 pr-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <button onclick="openAddChapterModal()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-md flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-plus-circle"></i> Missing Chapter Jodein
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Selection Bar: Class 11 vs Class 12 and Subjects -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mt-4">
+                <!-- Class Selection -->
+                <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
+                    <button onclick="setClassTab('11')" id="btnClass11" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white">
+                        Class 11th
+                    </button>
+                    <button onclick="setClassTab('12')" id="btnClass12" class="px-4 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
+                        Class 12th
+                    </button>
+                </div>
+
+                <!-- Subject Selection -->
+                <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800 overflow-x-auto">
+                    <button onclick="setSubjectTab('All')" id="btnSubAll" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white transition">
+                        All Subjects
+                    </button>
+                    <button onclick="setSubjectTab('Physics')" id="btnSubPhysics" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-blue-400 transition">
+                        Physics
+                    </button>
+                    <button onclick="setSubjectTab('Chemistry')" id="btnSubChemistry" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-amber-400 transition">
+                        Chemistry
+                    </button>
+                    <button onclick="setSubjectTab('Biology')" id="btnSubBiology" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-emerald-400 transition">
+                        Biology
+                    </button>
+                </div>
+
+                <!-- Filter by status -->
+                <select id="statusFilter" onchange="renderChapters()" class="bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-xl px-3 py-1.5 focus:outline-none">
+                    <option value="all">Sabhi Chapters</option>
+                    <option value="pending">Theory Pending</option>
+                    <option value="done">Theory Done</option>
+                    <option value="pyq_zero">PYQ 0 Baaki</option>
+                </select>
+            </div>
+
+            <!-- Chapters Table/Cards List -->
+            <div class="mt-5 overflow-x-auto">
+                <div id="chaptersList" class="space-y-3 min-w-[700px]">
+                    <!-- Chapters rendered dynamically via JavaScript -->
+                </div>
+            </div>
+
+            <div id="emptyChapterNotice" class="hidden text-center py-12 text-slate-500">
+                <i class="fa-regular fa-folder-open text-4xl mb-2"></i>
+                <p class="text-sm">Koi chapter nahi mila. Search check karein ya 'Missing Chapter Jodein' par click karein.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-7xl mx-auto px-4 py-8 text-center text-xs text-slate-500 space-y-2">
+        <p>  Created by Mr.Guddu Kumar </p>
+        <p>🎯 "Doctor banne ka junoon agar seene me ho, to har musibat aasan ho jaati hai."</p>
+        <p>© NEET Preparation Suite • LocalStorage me auto-save mode on hai.</p>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- 1. Pomodoro / Study Timer Modal -->
+    <div id="timerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl relative text-center">
+            <button onclick="closeTimerModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="inline-flex p-3 bg-emerald-500/10 rounded-2xl text-emerald-400 mb-3">
+                <i class="fa-solid fa-stopwatch text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white">Study Focus Timer</h3>
+            <p class="text-xs text-slate-400 mb-6">Deep work session me mobile door rakhein!</p>
+
+            <!-- Mode selector -->
+            <div class="flex justify-center gap-2 mb-6">
+                <button onclick="setTimerDuration(25)" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-600 text-white">25m Pomodoro</button>
+                <button onclick="setTimerDuration(50)" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">50m Intense</button>
+                <button onclick="setTimerDuration(5)" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">5m Break</button>
+            </div>
+
+            <!-- Big Clock -->
+            <div class="text-6xl font-black font-mono tracking-wider text-emerald-400 my-4" id="modalTimerDisplay">
+                25:00
+            </div>
+
+            <!-- Controls -->
+            <div class="flex justify-center gap-3 mt-6">
+                <button id="timerToggleBtn" onclick="toggleTimer()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-play"></i> Start
+                </button>
+                <button onclick="resetTimer()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl font-semibold transition">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400 flex justify-between">
+                <span>Aaj ka total focus time:</span>
+                <span id="totalStudyTime" class="font-bold text-emerald-400 font-mono">0 mins</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Add Missing Chapter Modal -->
+    <div id="addChapterModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="closeAddChapterModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-emerald-400"></i> Naya Chapter Add Karein
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Agar koi extra topic ya state board chapter ho to yahan jodein.</p>
+
+            <form onsubmit="handleAddNewChapter(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Chapter Ka Naam</label>
+                    <input type="text" id="newChapterName" required placeholder="e.g. Semiconductors / Biomolecules"
+                        class="w-full bg-slate-950 border border-slate-700 text-sm text-white px-3 py-2 rounded-xl focus:border-emerald-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Class</label>
+                        <select id="newChapterClass" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl">
+                            <option value="11">Class 11th</option>
+                            <option value="12">Class 12th</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Subject</label>
+                        <select id="newChapterSubject" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl">
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeAddChapterModal()" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold transition">
+                        Add Chapter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Formula Note Modal -->
+    <div id="noteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="closeNoteModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-bookmark text-cyan-400"></i> Naya Note / Formula
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Exam se pehle fatfat revise karne ke liye point likhein.</p>
+
+            <form onsubmit="handleSaveNote(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Title</label>
+                    <input type="text" id="noteTitle" required placeholder="e.g. Photoelectric Effect Equations"
+                        class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl focus:border-cyan-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Subject</label>
+                    <select id="noteSubject" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl">
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="General">General / Strategy</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Formula ya Short Note</label>
+                    <textarea id="noteContent" rows="4" required placeholder="hv = \phi + KE_max; Stopping potential formula..."
+                        class="w-full bg-slate-950 border border-slate-700 text-xs text-white p-3 rounded-xl focus:border-cyan-500 focus:outline-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeNoteModal()" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+                    <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-2 rounded-xl text-xs font-bold transition">
+                        Save Note
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Quick Chapter Detail / Edit Modal -->
+    <div id="chapterEditModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="closeChapterEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="editModalChapterName" class="text-lg font-bold text-emerald-400 mb-1">Chapter Name</h3>
+            <p id="editModalSubtitle" class="text-xs text-slate-400 mb-4">Class 11 • Physics</p>
+
+            <form onsubmit="saveChapterDetails(event)" class="space-y-4">
+                <input type="hidden" id="editModalChapterId">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                        <label class="text-xs font-semibold text-slate-300 block mb-1">Theory Status</label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer mt-1">
+                            <input type="checkbox" id="editModalTheory" class="w-4 h-4 rounded text-emerald-600 focus:ring-0">
+                            <span class="text-xs text-slate-200">Theory Complete</span>
+                        </label>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                        <label class="text-xs font-semibold text-slate-300 block mb-1">Mock Test Diya?</label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer mt-1">
+                            <input type="checkbox" id="editModalMock" class="w-4 h-4 rounded text-teal-600 focus:ring-0">
+                            <span class="text-xs text-slate-200">Test Attended</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-300 block mb-1">Kitne PYQs Solve Kiye?</label>
+                        <input type="number" id="editModalPyqs" min="0" class="w-full bg-slate-950 border border-slate-700 text-sm text-white px-3 py-2 rounded-xl focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-300 block mb-1">Kitni Baar Revision Hua?</label>
+                        <select id="editModalRevisions" class="w-full bg-slate-950 border border-slate-700 text-xs text-white px-3 py-2 rounded-xl focus:border-emerald-500">
+                            <option value="0">0 Baar</option>
+                            <option value="1">1 Baar (Rev 1)</option>
+                            <option value="2">2 Baar (Rev 2)</option>
+                            <option value="3">3 Baar (Rev 3)</option>
+                            <option value="4">4+ Baar (Pro Level)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-300 block mb-1">Mock Test Score & Mistake Notes</label>
+                    <textarea id="editModalMockNotes" rows="3" placeholder="e.g. Test Score: 85/100, Sign convention me galati hui, formula revise karo..."
+                        class="w-full bg-slate-950 border border-slate-700 text-xs text-white p-3 rounded-xl focus:border-emerald-500"></textarea>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <button type="button" onclick="deleteCurrentChapter()" class="text-red-400 hover:text-red-300 text-xs flex items-center gap-1">
+                        <i class="fa-regular fa-trash-can"></i> Chapter Delete Karein
+                    </button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeChapterEditModal()" class="px-3 py-2 text-xs font-semibold text-slate-400">Cancel</button>
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold transition">
+                            Update
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 border border-emerald-500/40 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg" id="toastIcon"></i>
+        <span id="toastMsg" class="text-xs font-medium">Progress saved!</span>
+    </div>
+
+    <!-- Web Audio Beep for Timer -->
+    <script>
+        function playBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.4);
+            } catch(e) {
+                console.log('Audio disabled or not supported');
+            }
+        }
+    </script>
+
+    <!-- Main Logic Script -->
+    <script>
+        /* ================= 1. MOTIVATIONAL SHAYARI DATABASE ================= */
+        const SHAYARI_LIST = [
+            "ना पूछो कि मेरी मंजिल कहाँ है, अभी तो सफर का इरादा किया है, ना हारूंगा हौसला उम्र भर, ये मैंने किसी से नहीं खुद से वादा किया है।",
+            "स्टेथोस्कोप गले में और व्हाइट कोट तन पे होगा, आज की ये रातें ही कल AIIMS का आंगन तय करेंगी।",
+            "मंजिलें भी जिद्दी हैं, रास्ते भी जिद्दी हैं, देखते हैं कल क्या होगा, हौसले भी तो जिद्दी हैं!",
+            "जो मुस्कुरा रहा है उसे दर्द ने पाला होगा, जो चल रहा है उसके पाँव में छाला होगा, बिना संघर्ष के इन्सान चमक नहीं सकता, जो जलेगा उसी दिये में तो उजाला होगा!",
+            "किताबों की दुनिया में जब खो जाओगे, यकीन मानो एक दिन सबसे बेहतरीन डॉक्टर कहलाओगे।",
+            "हौसले के तरकश में कोशिश का वो तीर जिंदा रखो, हार जाओ चाहे जिंदगी में सब कुछ, मगर फिर से जीतने की उम्मीद जिंदा रखो!",
+            "सिर्फ 720 में से एक बेहतरीन स्कोर नहीं, तुम्हें किसी की जिंदगी बचाने का जरिया बनना है, जागो और पढ़ो!",
+            "रात भर जाग कर पढ़ना शुरू कर दो, क्योंकि किस्मत के सितारे तभी चमकेंगे जब नींद अधूरी होगी।",
+            "सपना एक देखोगे मुश्किलें हजार आएंगी, लेकिन वो मंजर बड़ा खूबसूरत होगा जब कामयाबी शोर मचाएगी!",
+            "मुश्किलों से भाग जाना आसान होता है, हर पहलू जिंदगी का इम्तिहान होता है, डरने वालों को मिलता नहीं कुछ जिंदगी में, लड़ने वालों के कदमों में जहाँ होता है!",
+            "जिस दिन नाम के आगे Dr. लग जाएगा, तुम्हारी आज की सारी कुर्बानियों का हिसाब चुकता हो जाएगा।",
+            "वक्त से लड़कर जो नसीब बदल दे, इंसान वही जो अपनी तकदीर बदल दे, कल क्या होगा कभी मत सोचो, क्या पता कल वक्त खुद अपनी तस्वीर बदल दे!",
+            "मेहनत इतनी खामोशी से करो कि तुम्हारी सफलता नीट के रिजल्ट वाले दिन शोर मचा दे।",
+            "Biology की NCERT का हर पन्ना याद होगा, Physics के हर फॉर्मूले पर अपना राज होगा, Chemistry की रिएक्शंस मुट्ठी में होंगी, जब AIIMS में अपना आगाज होगा!",
+            "जब टूटने लगे हौसला तो बस ये याद रखना, बिना मेहनत के हासिल तख्तो-ताज नहीं होते, ढूंढ लेते हैं अंधेरों में भी मंजिल अपनी, क्योंकि जुगनू कभी रोशनी के मोहताज नहीं होते!",
+            "नींद और आलस को आज हराना होगा, उस मां-बाप के सपने को सच कर दिखाना होगा।",
+            "संघर्ष में आदमी अकेला होता है, सफलता में दुनिया उसके साथ होती है, जिस-जिस पर ये जग हँसा है, उसी ने इतिहास रचा है!",
+            "यह सिर्फ एक परीक्षा नहीं, लाखों दुआओं और तुम्हारे डॉक्टर बनने के संकल्प की परीक्षा है। लग जाओ!",
+            "खोल दे पंख मेरे कहता है परिंदा, अभी और उड़ान बाकी है, जमीं नहीं है मंजिल मेरी, अभी पूरा आसमान बाकी है!",
+            "हर मुश्किल का हल निकलेगा, आज नहीं तो कल निकलेगा, अर्जुन के तीर सा सध जा, मरुस्थल से भी जल निकलेगा!"
+        ];
+
+        let currentShayariIndex = 0;
+        function updateShayariUI() {
+            const textEl = document.getElementById('shayariText');
+            const idxEl = document.getElementById('shayariIndex');
+            textEl.innerText = `"${SHAYARI_LIST[currentShayariIndex]}"`;
+            idxEl.innerText = `${currentShayariIndex + 1} / ${SHAYARI_LIST.length}`;
+        }
+        function nextShayari() {
+            currentShayariIndex = (currentShayariIndex + 1) % SHAYARI_LIST.length;
+            updateShayariUI();
+        }
+        function copyShayari() {
+            const text = SHAYARI_LIST[currentShayariIndex];
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast('Shayari copied to clipboard! 🩺');
+        }
+        // Auto rotate shayari every 12s
+        setInterval(nextShayari, 12000);
+
+        /* ================= 2. COUNTDOWN TIMER ================= */
+        let targetExamDate = localStorage.getItem('neet_exam_target') || '2026-05-03T14:00:00';
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const target = new Date(targetExamDate).getTime();
+            const diff = target - now;
+
+            const daysEl = document.getElementById('cdDays');
+            const hoursEl = document.getElementById('cdHours');
+            const minsEl = document.getElementById('cdMins');
+            const secsEl = document.getElementById('cdSecs');
+            const displayEl = document.getElementById('displayExamDate');
+
+            const dateObj = new Date(targetExamDate);
+            displayEl.innerText = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            if (diff <= 0) {
+                daysEl.innerText = "00";
+                hoursEl.innerText = "00";
+                minsEl.innerText = "00";
+                secsEl.innerText = "00";
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            daysEl.innerText = days < 10 ? '0' + days : days;
+            hoursEl.innerText = hours < 10 ? '0' + hours : hours;
+            minsEl.innerText = minutes < 10 ? '0' + minutes : minutes;
+            secsEl.innerText = seconds < 10 ? '0' + seconds : seconds;
+        }
+
+        function changeExamDatePrompt() {
+            const current = targetExamDate.split('T')[0];
+            const newDate = prompt("NEET Exam Date daalein (YYYY-MM-DD):", current);
+            if (newDate) {
+                targetExamDate = newDate + "T14:00:00";
+                localStorage.setItem('neet_exam_target', targetExamDate);
+                updateCountdown();
+                showToast("Target date update ho gayi!");
+            }
+        }
+        setInterval(updateCountdown, 1000);
+
+        /* ================= 3. CHAPTERS DATABASE (NEET SYLLABUS) ================= */
+        const DEFAULT_CHAPTERS = [
+            // CLASS 11 PHYSICS
+            { id: '11_phy_1', class: '11', subject: 'Physics', name: 'Units and Measurements', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_2', class: '11', subject: 'Physics', name: 'Motion in a Straight Line', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_3', class: '11', subject: 'Physics', name: 'Motion in a Plane', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_4', class: '11', subject: 'Physics', name: 'Laws of Motion', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_5', class: '11', subject: 'Physics', name: 'Work, Energy and Power', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_6', class: '11', subject: 'Physics', name: 'System of Particles & Rotational Motion', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_7', class: '11', subject: 'Physics', name: 'Gravitation', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_8', class: '11', subject: 'Physics', name: 'Mechanical Properties of Solids', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_9', class: '11', subject: 'Physics', name: 'Mechanical Properties of Fluids', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_10', class: '11', subject: 'Physics', name: 'Thermal Properties of Matter', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_11', class: '11', subject: 'Physics', name: 'Thermodynamics (Physics)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_12', class: '11', subject: 'Physics', name: 'Kinetic Theory of Gases', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_13', class: '11', subject: 'Physics', name: 'Oscillations (SHM)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_phy_14', class: '11', subject: 'Physics', name: 'Waves', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+
+            // CLASS 11 CHEMISTRY
+            { id: '11_chem_1', class: '11', subject: 'Chemistry', name: 'Some Basic Concepts of Chemistry (Mole Concept)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_2', class: '11', subject: 'Chemistry', name: 'Structure of Atom', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_3', class: '11', subject: 'Chemistry', name: 'Classification of Elements & Periodicity', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_4', class: '11', subject: 'Chemistry', name: 'Chemical Bonding & Molecular Structure', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_5', class: '11', subject: 'Chemistry', name: 'Chemical Thermodynamics', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_6', class: '11', subject: 'Chemistry', name: 'Equilibrium (Chemical & Ionic)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_7', class: '11', subject: 'Chemistry', name: 'Redox Reactions', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_8', class: '11', subject: 'Chemistry', name: 'Organic Chemistry - Basic Principles & Techniques', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_chem_9', class: '11', subject: 'Chemistry', name: 'Hydrocarbons', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+
+            // CLASS 11 BIOLOGY
+            { id: '11_bio_1', class: '11', subject: 'Biology', name: 'The Living World', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_2', class: '11', subject: 'Biology', name: 'Biological Classification', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_3', class: '11', subject: 'Biology', name: 'Plant Kingdom', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_4', class: '11', subject: 'Biology', name: 'Animal Kingdom', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_5', class: '11', subject: 'Biology', name: 'Morphology of Flowering Plants', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_6', class: '11', subject: 'Biology', name: 'Anatomy of Flowering Plants', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_7', class: '11', subject: 'Biology', name: 'Structural Organisation in Animals (Frog etc.)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_8', class: '11', subject: 'Biology', name: 'Cell: The Unit of Life', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_9', class: '11', subject: 'Biology', name: 'Biomolecules', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_10', class: '11', subject: 'Biology', name: 'Cell Cycle and Cell Division', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_11', class: '11', subject: 'Biology', name: 'Photosynthesis in Higher Plants', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_12', class: '11', subject: 'Biology', name: 'Respiration in Plants', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_13', class: '11', subject: 'Biology', name: 'Plant Growth and Development', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_14', class: '11', subject: 'Biology', name: 'Breathing and Exchange of Gases', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_15', class: '11', subject: 'Biology', name: 'Body Fluids and Circulation', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_16', class: '11', subject: 'Biology', name: 'Excretory Products and their Elimination', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_17', class: '11', subject: 'Biology', name: 'Locomotion and Movement', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_18', class: '11', subject: 'Biology', name: 'Neural Control and Coordination', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '11_bio_19', class: '11', subject: 'Biology', name: 'Chemical Coordination and Integration', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+
+            // CLASS 12 PHYSICS
+            { id: '12_phy_1', class: '12', subject: 'Physics', name: 'Electric Charges and Fields', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_2', class: '12', subject: 'Physics', name: 'Electrostatic Potential & Capacitance', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_3', class: '12', subject: 'Physics', name: 'Current Electricity', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_4', class: '12', subject: 'Physics', name: 'Moving Charges and Magnetism', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_5', class: '12', subject: 'Physics', name: 'Magnetism and Matter', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_6', class: '12', subject: 'Physics', name: 'Electromagnetic Induction (EMI)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_7', class: '12', subject: 'Physics', name: 'Alternating Current (AC)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_8', class: '12', subject: 'Physics', name: 'Electromagnetic Waves', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_9', class: '12', subject: 'Physics', name: 'Ray Optics and Optical Instruments', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_10', class: '12', subject: 'Physics', name: 'Wave Optics', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_11', class: '12', subject: 'Physics', name: 'Dual Nature of Radiation and Matter', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_12', class: '12', subject: 'Physics', name: 'Atoms', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_13', class: '12', subject: 'Physics', name: 'Nuclei', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_phy_14', class: '12', subject: 'Physics', name: 'Semiconductor Electronics', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+
+            // CLASS 12 CHEMISTRY
+            { id: '12_chem_1', class: '12', subject: 'Chemistry', name: 'Solutions', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_2', class: '12', subject: 'Chemistry', name: 'Electrochemistry', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_3', class: '12', subject: 'Chemistry', name: 'Chemical Kinetics', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_4', class: '12', subject: 'Chemistry', name: 'd and f-Block Elements', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_5', class: '12', subject: 'Chemistry', name: 'Coordination Compounds', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_6', class: '12', subject: 'Chemistry', name: 'Haloalkanes and Haloarenes', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_7', class: '12', subject: 'Chemistry', name: 'Alcohols, Phenols and Ethers', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_8', class: '12', subject: 'Chemistry', name: 'Aldehydes, Ketones and Carboxylic Acids', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_9', class: '12', subject: 'Chemistry', name: 'Amines', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_chem_10', class: '12', subject: 'Chemistry', name: 'Biomolecules (Chemistry)', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+
+            // CLASS 12 BIOLOGY
+            { id: '12_bio_1', class: '12', subject: 'Biology', name: 'Sexual Reproduction in Flowering Plants', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_2', class: '12', subject: 'Biology', name: 'Human Reproduction', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_3', class: '12', subject: 'Biology', name: 'Reproductive Health', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_4', class: '12', subject: 'Biology', name: 'Principles of Inheritance and Variation', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_5', class: '12', subject: 'Biology', name: 'Molecular Basis of Inheritance', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_6', class: '12', subject: 'Biology', name: 'Evolution', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_7', class: '12', subject: 'Biology', name: 'Human Health and Disease', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_8', class: '12', subject: 'Biology', name: 'Microbes in Human Welfare', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_9', class: '12', subject: 'Biology', name: 'Biotechnology: Principles and Processes', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_10', class: '12', subject: 'Biology', name: 'Biotechnology and its Applications', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_11', class: '12', subject: 'Biology', name: 'Organisms and Populations', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_12', class: '12', subject: 'Biology', name: 'Ecosystem', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' },
+            { id: '12_bio_13', class: '12', subject: 'Biology', name: 'Biodiversity and Conservation', theory: false, pyqs: 0, revisions: 0, mock: false, notes: '' }
+        ];
+
+        let chapters = JSON.parse(localStorage.getItem('neet_chapters')) || DEFAULT_CHAPTERS;
+        let selectedClass = '11';
+        let selectedSubject = 'All';
+
+        function saveChapters() {
+            localStorage.setItem('neet_chapters', JSON.stringify(chapters));
+            updateOverallProgress();
+        }
+
+        function setClassTab(cls) {
+            selectedClass = cls;
+            document.getElementById('btnClass11').className = cls === '11' 
+                ? 'px-4 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white' 
+                : 'px-4 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+            document.getElementById('btnClass12').className = cls === '12' 
+                ? 'px-4 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white' 
+                : 'px-4 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+            renderChapters();
+        }
+
+        function setSubjectTab(sub) {
+            selectedSubject = sub;
+            ['All', 'Physics', 'Chemistry', 'Biology'].forEach(s => {
+                const btn = document.getElementById('btnSub' + s);
+                if (s === sub) {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white transition';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+                }
+            });
+            renderChapters();
+        }
+
+        function quickToggleTheory(id, e) {
+            e.stopPropagation();
+            const ch = chapters.find(c => c.id === id);
+            if (ch) {
+                ch.theory = !ch.theory;
+                saveChapters();
+                renderChapters();
+                showToast(`"${ch.name}" theory status updated!`);
+            }
+        }
+
+        function incrementPyq(id, step, e) {
+            e.stopPropagation();
+            const ch = chapters.find(c => c.id === id);
+            if (ch) {
+                ch.pyqs = Math.max(0, (ch.pyqs || 0) + step);
+                saveChapters();
+                renderChapters();
+            }
+        }
+
+        function cycleRevision(id, e) {
+            e.stopPropagation();
+            const ch = chapters.find(c => c.id === id);
+            if (ch) {
+                ch.revisions = ((ch.revisions || 0) + 1) % 4; // 0, 1, 2, 3
+                saveChapters();
+                renderChapters();
+                showToast(`Revision count: ${ch.revisions}`);
+            }
+        }
+
+        function renderChapters() {
+            const listEl = document.getElementById('chaptersList');
+            const searchVal = document.getElementById('chapterSearch').value.toLowerCase().trim();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const emptyNotice = document.getElementById('emptyChapterNotice');
+
+            let filtered = chapters.filter(ch => {
+                if (ch.class !== selectedClass) return false;
+                if (selectedSubject !== 'All' && ch.subject !== selectedSubject) return false;
+                if (searchVal && !ch.name.toLowerCase().includes(searchVal)) return false;
+                
+                if (statusFilter === 'pending' && ch.theory) return false;
+                if (statusFilter === 'done' && !ch.theory) return false;
+                if (statusFilter === 'pyq_zero' && (ch.pyqs || 0) > 0) return false;
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyNotice.classList.remove('hidden');
+                return;
+            } else {
+                emptyNotice.classList.add('hidden');
+            }
+
+            let html = '';
+            filtered.forEach(ch => {
+                const subBadgeColor = ch.subject === 'Physics' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                                      ch.subject === 'Chemistry' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                      'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+
+                const revBadgeColor = ch.revisions === 0 ? 'bg-slate-800 text-slate-400' :
+                                      ch.revisions === 1 ? 'bg-cyan-900/60 text-cyan-300 border border-cyan-500/30' :
+                                      ch.revisions === 2 ? 'bg-teal-900/60 text-teal-300 border border-teal-500/30' :
+                                      'bg-emerald-800 text-emerald-200 font-bold border border-emerald-400';
+
+                html += `
+                <div onclick="openChapterEditModal('${ch.id}')" class="bg-slate-900/80 hover:bg-slate-850 border ${ch.theory ? 'border-emerald-500/30' : 'border-slate-800'} p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 cursor-pointer transition hover:border-slate-700 shadow-sm">
+                    
+                    <!-- Left: Subject Badge & Title -->
+                    <div class="flex items-center space-x-3 flex-1 min-w-[240px]">
+                        <button onclick="quickToggleTheory('${ch.id}', event)" class="w-7 h-7 rounded-lg flex items-center justify-center transition ${ch.theory ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500 hover:text-slate-300 border border-slate-700'}" title="Toggle Theory">
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </button>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border ${subBadgeColor}">${ch.subject}</span>
+                                <h4 class="text-sm font-semibold ${ch.theory ? 'text-slate-100' : 'text-slate-300'}">${ch.name}</h4>
+                            </div>
+                            <div class="flex items-center gap-3 mt-1 text-[11px] text-slate-400">
+                                <span><i class="fa-solid ${ch.theory ? 'fa-circle-check text-emerald-400' : 'fa-clock text-amber-400'} mr-1"></i>${ch.theory ? 'Theory Done' : 'Theory Baaki'}</span>
+                                ${ch.mock ? '<span class="text-teal-400"><i class="fa-solid fa-award mr-1"></i>Mock Attended</span>' : ''}
+                                ${ch.notes ? '<span class="text-slate-400 truncate max-w-[150px]"><i class="fa-regular fa-note-sticky mr-1"></i>Note added</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Controls: PYQ Counter, Revision Pill, Edit Button -->
+                    <div class="flex items-center gap-3">
+                        <!-- PYQ Counter -->
+                        <div class="bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 flex items-center gap-2" onclick="event.stopPropagation()">
+                            <span class="text-[11px] text-slate-400 font-medium">PYQs:</span>
+                            <span class="text-xs font-mono font-bold text-amber-400 min-w-[20px] text-center">${ch.pyqs || 0}</span>
+                            <div class="flex gap-1">
+                                <button onclick="incrementPyq('${ch.id}', -5, event)" class="text-[10px] bg-slate-800 hover:bg-slate-700 w-5 h-5 rounded flex items-center justify-center text-slate-300">-5</button>
+                                <button onclick="incrementPyq('${ch.id}', 10, event)" class="text-[10px] bg-emerald-700/50 hover:bg-emerald-600 w-6 h-5 rounded flex items-center justify-center text-emerald-200 font-bold">+10</button>
+                            </div>
+                        </div>
+
+                        <!-- Revisions Clicker -->
+                        <button onclick="cycleRevision('${ch.id}', event)" class="text-xs px-2.5 py-1 rounded-xl transition ${revBadgeColor}" title="Click to cycle revision count">
+                            <i class="fa-solid fa-repeat text-[10px] mr-1"></i> Rev: <strong>${ch.revisions || 0}</strong>
+                        </button>
+
+                        <!-- Edit Button -->
+                        <button class="p-2 text-slate-400 hover:text-emerald-400 transition" title="Details / Notes">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+
+                </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        /* ================= 4. OVERALL PROGRESS CALCULATION ================= */
+        function updateOverallProgress() {
+            const total = chapters.length;
+            if (total === 0) return;
+
+            const theoryDone = chapters.filter(c => c.theory).length;
+            const overallPct = Math.round((theoryDone / total) * 100);
+
+            document.getElementById('overallPercentage').innerText = overallPct + '%';
+            document.getElementById('overallCircle').setAttribute('stroke-dasharray', `${overallPct}, 100`);
+
+            // By Subjects
+            ['Physics', 'Chemistry', 'Biology'].forEach(sub => {
+                const subChapters = chapters.filter(c => c.subject === sub);
+                const subTotal = subChapters.length;
+                const subDone = subChapters.filter(c => c.theory).length;
+                const subPyqs = subChapters.reduce((acc, curr) => acc + (curr.pyqs || 0), 0);
+                const pct = subTotal > 0 ? Math.round((subDone / subTotal) * 100) : 0;
+
+                const subKey = sub.toLowerCase();
+                document.getElementById(subKey + 'Percent').innerText = pct + '%';
+                document.getElementById(subKey + 'Bar').style.width = pct + '%';
+                document.getElementById(subKey + 'Count').innerText = `${subDone}/${subTotal} Ch Completed`;
+                document.getElementById(subKey + 'PyqCount').innerText = `${subPyqs} PYQs done`;
+            });
+        }
+
+        /* ================= 5. ADD CUSTOM CHAPTER ================= */
+        function openAddChapterModal() {
+            document.getElementById('addChapterModal').classList.remove('hidden');
+        }
+        function closeAddChapterModal() {
+            document.getElementById('addChapterModal').classList.add('hidden');
+        }
+        function handleAddNewChapter(e) {
+            e.preventDefault();
+            const name = document.getElementById('newChapterName').value.trim();
+            const cls = document.getElementById('newChapterClass').value;
+            const sub = document.getElementById('newChapterSubject').value;
+
+            if (!name) return;
+
+            const newCh = {
+                id: 'custom_' + Date.now(),
+                class: cls,
+                subject: sub,
+                name: name,
+                theory: false,
+                pyqs: 0,
+                revisions: 0,
+                mock: false,
+                notes: ''
+            };
+
+            chapters.push(newCh);
+            saveChapters();
+            closeAddChapterModal();
+            document.getElementById('newChapterName').value = '';
+            
+            // Switch tab to the added chapter's category
+            setClassTab(cls);
+            setSubjectTab(sub);
+            showToast(`Chapter "${name}" successfully add ho gaya!`);
+        }
+
+        /* ================= 6. CHAPTER EDIT MODAL ================= */
+        function openChapterEditModal(id) {
+            const ch = chapters.find(c => c.id === id);
+            if (!ch) return;
+
+            document.getElementById('editModalChapterId').value = ch.id;
+            document.getElementById('editModalChapterName').innerText = ch.name;
+            document.getElementById('editModalSubtitle').innerText = `Class ${ch.class} • ${ch.subject}`;
+            document.getElementById('editModalTheory').checked = !!ch.theory;
+            document.getElementById('editModalMock').checked = !!ch.mock;
+            document.getElementById('editModalPyqs').value = ch.pyqs || 0;
+            document.getElementById('editModalRevisions').value = ch.revisions || 0;
+            document.getElementById('editModalMockNotes').value = ch.notes || '';
+
+            document.getElementById('chapterEditModal').classList.remove('hidden');
+        }
+        function closeChapterEditModal() {
+            document.getElementById('chapterEditModal').classList.add('hidden');
+        }
+        function saveChapterDetails(e) {
+            e.preventDefault();
+            const id = document.getElementById('editModalChapterId').value;
+            const ch = chapters.find(c => c.id === id);
+            if (!ch) return;
+
+            ch.theory = document.getElementById('editModalTheory').checked;
+            ch.mock = document.getElementById('editModalMock').checked;
+            ch.pyqs = parseInt(document.getElementById('editModalPyqs').value) || 0;
+            ch.revisions = parseInt(document.getElementById('editModalRevisions').value) || 0;
+            ch.notes = document.getElementById('editModalMockNotes').value.trim();
+
+            saveChapters();
+            renderChapters();
+            closeChapterEditModal();
+            showToast("Chapter details update ho gayi!");
+        }
+        function deleteCurrentChapter() {
+            const id = document.getElementById('editModalChapterId').value;
+            const ch = chapters.find(c => c.id === id);
+            if (!ch) return;
+
+            // Removing without native alert / confirm as per instruction
+            chapters = chapters.filter(c => c.id !== id);
+            saveChapters();
+            renderChapters();
+            closeChapterEditModal();
+            showToast(`"${ch.name}" delete kar diya gaya.`);
+        }
+
+        /* ================= 7. DAILY STUDY PLANNER (TODOS) ================= */
+        let todos = JSON.parse(localStorage.getItem('neet_todos')) || [
+            { id: 1, text: 'Cell Biology ke 50 NCERT Based Questions', done: true, priority: 'high' },
+            { id: 2, text: 'Current Electricity: Kirchhoff Laws Revision', done: false, priority: 'high' },
+            { id: 3, text: 'Chemical Bonding notes revise karna', done: false, priority: 'med' }
+        ];
+
+        function saveTodos() {
+            localStorage.setItem('neet_todos', JSON.stringify(todos));
+            renderTodos();
+        }
+
+        function addTodoTask(e) {
+            e.preventDefault();
+            const input = document.getElementById('taskInput');
+            const priority = document.getElementById('taskPriority').value;
+            if (!input.value.trim()) return;
+
+            todos.push({
+                id: Date.now(),
+                text: input.value.trim(),
+                done: false,
+                priority: priority
+            });
+
+            input.value = '';
+            saveTodos();
+            showToast('New target added to your list!');
+        }
+
+        function toggleTodo(id) {
+            const t = todos.find(item => item.id === id);
+            if (t) {
+                t.done = !t.done;
+                saveTodos();
+            }
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos();
+        }
+
+        function clearCompletedTodos() {
+            todos = todos.filter(t => !t.done);
+            saveTodos();
+            showToast('Completed targets cleared!');
+        }
+
+        function renderTodos() {
+            const listEl = document.getElementById('todoList');
+            const doneCount = todos.filter(t => t.done).length;
+            document.getElementById('taskStats').innerText = `${doneCount}/${todos.length} Done`;
+
+            if (todos.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 py-3 text-center">Koi target nahi hai. Naya target add karein!</p>`;
+                return;
+            }
+
+            let html = '';
+            todos.forEach(t => {
+                const priorityBadge = t.priority === 'high' ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-red-900/40 text-red-300 font-bold">HIGH</span>' :
+                                      t.priority === 'med' ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-900/40 text-amber-300">MED</span>' :
+                                      '<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">LOW</span>';
+
+                html += `
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+                    <div class="flex items-center gap-2.5 flex-1 pr-2">
+                        <input type="checkbox" onchange="toggleTodo(${t.id})" ${t.done ? 'checked' : ''} class="w-4 h-4 rounded text-emerald-600 focus:ring-0">
+                        <span class="${t.done ? 'line-through text-slate-500' : 'text-slate-200'} font-medium">${t.text}</span>
+                        ${priorityBadge}
+                    </div>
+                    <button onclick="deleteTodo(${t.id})" class="text-slate-500 hover:text-red-400 p-1">
+                        <i class="fa-solid fa-trash-can text-[11px]"></i>
+                    </button>
+                </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        /* ================= 8. FORMULA & IMPORTANT NOTES ================= */
+        let notes = JSON.parse(localStorage.getItem('neet_notes')) || [
+            { id: 1, title: 'Photoelectric Effect', subject: 'Physics', content: 'E = h\nu = \phi + K_{max}. Stopping Potential V_0 = (h\nu - \phi) / e.' },
+            { id: 2, title: 'Hardy-Weinberg Equilibrium', subject: 'Biology', content: 'p^2 + 2pq + q^2 = 1. Used for allele frequencies.' },
+            { id: 3, title: 'Ideal Gas Law & Deviations', subject: 'Chemistry', content: '(P + a*n^2/V^2)(V - nb) = nRT. a: Intermolecular attraction, b: Effective volume.' }
+        ];
+
+        function saveNotes() {
+            localStorage.setItem('neet_notes', JSON.stringify(notes));
+            renderNotes();
+        }
+
+        function openNoteModal() {
+            document.getElementById('noteModal').classList.remove('hidden');
+        }
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.add('hidden');
+        }
+
+        function handleSaveNote(e) {
+            e.preventDefault();
+            const title = document.getElementById('noteTitle').value.trim();
+            const sub = document.getElementById('noteSubject').value;
+            const content = document.getElementById('noteContent').value.trim();
+
+            if (!title || !content) return;
+
+            notes.unshift({
+                id: Date.now(),
+                title: title,
+                subject: sub,
+                content: content
+            });
+
+            saveNotes();
+            closeNoteModal();
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteContent').value = '';
+            showToast('Note save ho gaya!');
+        }
+
+        function deleteNote(id) {
+            notes = notes.filter(n => n.id !== id);
+            saveNotes();
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notesContainer');
+            document.getElementById('notesCount').innerText = `${notes.length} Notes`;
+
+            if (notes.length === 0) {
+                container.innerHTML = `<p class="col-span-2 text-xs text-slate-500 py-3 text-center">Koi formula note nahi hai. Click 'Naya Note Likhein'.</p>`;
+                return;
+            }
+
+            let html = '';
+            notes.forEach(n => {
+                const badgeColor = n.subject === 'Physics' ? 'text-blue-400 bg-blue-900/30' :
+                                   n.subject === 'Chemistry' ? 'text-amber-400 bg-amber-900/30' :
+                                   n.subject === 'Biology' ? 'text-emerald-400 bg-emerald-900/30' : 'text-slate-300 bg-slate-800';
+
+                html += `
+                <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${badgeColor}">${n.subject}</span>
+                            <button onclick="deleteNote(${n.id})" class="text-slate-500 hover:text-red-400 opacity-60 group-hover:opacity-100">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>
+                        <h5 class="text-xs font-bold text-slate-200 mb-1">${n.title}</h5>
+                        <p class="text-[11px] text-slate-400 leading-relaxed font-mono whitespace-pre-line">${n.content}</p>
+                    </div>
+                </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        /* ================= 9. POMODORO / STUDY FOCUS TIMER ================= */
+        let timerSeconds = 25 * 60;
+        let initialSeconds = 25 * 60;
+        let timerInterval = null;
+        let isRunning = false;
+        let totalStudiedMinutes = parseInt(localStorage.getItem('neet_study_minutes')) || 0;
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            const str = `${mins < 10 ? '0' + mins : mins}:${secs < 10 ? '0' + secs : secs}`;
+            document.getElementById('navTimerDisplay').innerText = str;
+            document.getElementById('modalTimerDisplay').innerText = str;
+            document.getElementById('totalStudyTime').innerText = `${totalStudiedMinutes} mins`;
+        }
+
+        function setTimerDuration(mins) {
+            pauseTimer();
+            initialSeconds = mins * 60;
+            timerSeconds = initialSeconds;
+            updateTimerDisplay();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('timerToggleBtn').innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+            document.getElementById('timerToggleBtn').classList.replace('bg-emerald-600', 'bg-amber-600');
+
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    // Accumulate study minutes
+                    if (timerSeconds % 60 === 0) {
+                        totalStudiedMinutes++;
+                        localStorage.setItem('neet_study_minutes', totalStudiedMinutes);
+                    }
+                } else {
+                    pauseTimer();
+                    playBeep();
+                    showToast('🎉 Focus session completed! Shabaash!');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('timerToggleBtn').innerHTML = '<i class="fa-solid fa-play"></i> Start';
+            document.getElementById('timerToggleBtn').classList.replace('bg-amber-600', 'bg-emerald-600');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = initialSeconds;
+            updateTimerDisplay();
+        }
+
+        function openTimerModal() {
+            document.getElementById('timerModal').classList.remove('hidden');
+        }
+        function closeTimerModal() {
+            document.getElementById('timerModal').classList.add('hidden');
+        }
+
+        /* ================= 10. THEME & TOAST UTILITIES ================= */
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toastMsg');
+            msgEl.innerText = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2500);
+        }
+
+        /* ================= WINDOW ONLOAD INITIALIZATION ================= */
+        window.onload = function() {
+            updateShayariUI();
+            updateCountdown();
+            renderChapters();
+            updateOverallProgress();
+            renderTodos();
+            renderNotes();
+            updateTimerDisplay();
+        };
+    </script>
+</body>
+</html>
