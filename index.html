@@ -1365,7 +1365,194 @@
             </span>
         </button>
     </div>
+ <script>        /* ================= 11. STUDYPRO AI (SAATHI AI) ENGINE ================= */
+        let aiHistory = JSON.parse(localStorage.getItem('studypro_ai_chat')) || [];
+        let attachedFileData = null;
+        let lastAiSpeechText = "";
+        let isRecording = false;
+        let recognition = null;
 
+        // Initialize Speech Recognition if supported
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRec();
+            recognition.continuous = false;
+            recognition.lang = 'hi-IN'; // Default Hindi + English support
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('aiUserInput').value = transcript;
+                toggleVoiceRecording();
+            };
+
+            recognition.onerror = function() {
+                toggleVoiceRecording();
+                showToast("Voice input fail hua. Type karein.");
+            };
+        }
+
+        function toggleVoiceRecording() {
+            const voiceBtn = document.getElementById('voiceBtn');
+            if (!recognition) {
+                showToast("Browser me voice recognition support nahi hai.");
+                return;
+            }
+            if (!isRecording) {
+                recognition.start();
+                isRecording = true;
+                voiceBtn.classList.add('text-red-500', 'animate-pulse');
+            } else {
+                recognition.stop();
+                isRecording = false;
+                voiceBtn.classList.remove('text-red-500', 'animate-pulse');
+            }
+        }
+
+        function toggleAiDrawer() {
+            const modal = document.getElementById('aiModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                renderAiMessages();
+            }
+        }
+
+        function clearAiChat() {
+            aiHistory = [];
+            localStorage.removeItem('studypro_ai_chat');
+            renderAiMessages();
+            showToast("Chat clear kar di gayi.");
+        }
+
+        function sendQuickPrompt(prompt) {
+            document.getElementById('aiUserInput').value = prompt;
+            handleAiSubmit(new Event('submit'));
+        }
+
+        function handleFileSelection(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            attachedFileData = file.name;
+            document.getElementById('fileNameDisplay').innerHTML = `<i class="fa-solid fa-file-lines"></i> ${file.name}`;
+            document.getElementById('filePreviewBar').classList.remove('hidden');
+        }
+
+        function removeAttachedFile() {
+            attachedFileData = null;
+            document.getElementById('aiFileInput').value = '';
+            document.getElementById('filePreviewBar').classList.add('hidden');
+        }
+
+        function handleAiSubmit(e) {
+            if (e) e.preventDefault();
+            const inputEl = document.getElementById('aiUserInput');
+            const userText = inputEl.value.trim();
+            if (!userText && !attachedFileData) return;
+
+            const fullPrompt = attachedFileData ? `[File: ${attachedFileData}]${userText}` : userText;
+
+            // Push User Message
+            aiHistory.push({ role: 'user', text: fullPrompt });
+            inputEl.value = '';
+            removeAttachedFile();
+            renderAiMessages();
+
+            // Simulate AI Thought & Smart Logic
+            showAiTyping();
+
+            setTimeout(() => {
+                generateSmartResponse(userText);
+            }, 800);
+        }
+
+        function showAiTyping() {
+            const chatBox = document.getElementById('aiChatBox');
+            const typingEl = document.createElement('div');
+            typingEl.id = 'aiTypingIndicator';
+            typingEl.className = 'flex items-center gap-2 text-slate-400 text-xs italic pl-2';
+            typingEl.innerHTML = `
+                <div class="w-6 h-6 rounded bg-emerald-600/30 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-brain fa-spin"></i></div>
+                <span>Saathi AI soch raha hai...</span>
+            `;
+            chatBox.appendChild(typingEl);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeAiTyping() {
+            const el = document.getElementById('aiTypingIndicator');
+            if (el) el.remove();
+        }
+
+        function generateSmartResponse(query) {
+            removeAiTyping();
+            let reply = "";
+            const lower = query.toLowerCase();
+
+            if (lower.includes('formula') || lower.includes('optics')) {
+                reply = "### 📌 Optics Formula Revision:\n- **Mirror Equation:** $\\frac{1}{f} = \\frac{1}{v} + \\frac{1}{u}$\n- **Lens Maker's Formula:** $\\frac{1}{f} = (\\mu - 1)(\\frac{1}{R_1} - \\frac{1}{R_2})$\n- **Snell's Law:** $\\mu_1 \\sin(i) = \\mu_2 \\sin(r)$\n- **Power of Lens:** $P = \\frac{1}{f \\text{ (in m)}}$ (Dioptre)";
+            } else if (lower.includes('quiz') || lower.includes('pyq')) {
+                reply = "### 🎯 NCERT Quiz (Photosynthesis):\n**Q1:** Light reaction ka main product kya hota hai?\nA) Only Glucose\nB) ATP, NADPH & $O_2$\nC) Only $CO_2$\nD) Pyruvate\n\n*Apna answer comment karein ya agla sawal puchein!*";
+            } else if (lower.includes('plan') || lower.includes('backlog')) {
+                reply = "### 📅 4-Hour Focused Backlog Plan:\n1. **0:00 - 1:30 (90 min):** High-Yield Chapter Theory (Fast 1.5x / Notes)\n2. **1:30 - 1:45 (15 min):** Active Recall & Break\n3. **1:45 - 3:15 (90 min):** 30 Solved PYQs + Formula Sheet\n4. **3:15 - 4:00 (45 min):** Mistake Analysis & To-Do List Sync";
+            } else if (lower.includes('shayari') || lower.includes('motivation') || lower.includes('josh')) {
+                reply = "🔥 *\"मंजिलें उन्हीं को मिलती हैं जिनके सपनों में जान होती है, पंखों से कुछ नहीं होता हौसलों से उड़ान होती है!\"*\n\nआज का टारगेट पूरा करके ही सोना है Future Doctor! 🩺";
+            } else {
+                reply = `मैंने आपके सवाल को समझ लिया है: **"${query}"**\n\n- **मुख्य बिंदु:** इस टॉपिक को हमेशा NCERT की लाइन-बाय-लाइन थ्योरी और पिछले 10 साल के PYQs के साथ तैयार करें।\n- **सुझाव:** अपने फॉर्मूला डायरी सेक्शन में इसके जरूरी स्टेप्स को तुरंत लिख लें!`;
+            }
+
+            lastAiSpeechText = reply.replace(/[#*$`]/g, '');
+            aiHistory.push({ role: 'assistant', text: reply });
+            localStorage.setItem('studypro_ai_chat', JSON.stringify(aiHistory));
+            renderAiMessages();
+        }
+
+        function renderAiMessages() {
+            const chatBox = document.getElementById('aiChatBox');
+            chatBox.innerHTML = '';
+
+            aiHistory.forEach(msg => {
+                const isUser = msg.role === 'user';
+                const el = document.createElement('div');
+                el.className = `flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`;
+
+                const avatar = isUser ? 
+                    `<div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-slate-300 text-xs shrink-0"><i class="fa-solid fa-user"></i></div>` :
+                    `<div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-robot"></i></div>`;
+
+                const contentHtml = window.marked ? marked.parse(msg.text) : msg.text;
+
+                el.innerHTML = `
+                    ${avatar}
+                    <div class="${isUser ? 'bg-emerald-600/90 text-white' : 'bg-slate-800/90 text-slate-200'} text-xs leading-relaxed p-3.5 rounded-2xl ${isUser ? 'rounded-tr-none' : 'rounded-tl-none'} border border-slate-700 max-w-[85%] shadow-sm">
+                        ${contentHtml}
+                    </div>
+                `;
+                chatBox.appendChild(el);
+            });
+
+            // Typeset MathJax if formulas exist
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([chatBox]);
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function speakLastResponse() {
+            if (!lastAiSpeechText) {
+                showToast("Sunkar bolne ke liye koi message nahi mila.");
+                return;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(lastAiSpeechText);
+                utter.rate = 1.0;
+                utter.lang = 'hi-IN';
+                window.speechSynthesis.speak(utter);
+            } else {
+                showToast("Text-to-speech support upalabdh nahi hai.");
+            }
+        }
+ </script>
     <!-- ================= STUDYPRO AI DRAWER / MODAL ================= -->
     <div id="aiModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex justify-end transition-opacity duration-300">
         <div class="w-full max-w-xl h-full bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col justify-between">
